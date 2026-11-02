@@ -1,0 +1,22 @@
+{
+  "name": "sonarqube-mcp-config",
+  "description": "Snippet de configuración para agregar el MCP de SonarQube a OpenCode",
+  "instructions": "Copia el contenido de 'mcp' a tu ~/.config/opencode/opencode.json",
+  "mcp": {
+    "servers": {
+      "sonarqube": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "/Users/celara/Desktop/sonarqube/mcp/src/server.js"
+        ],
+        "env": {
+          "SONARQUBE_HOST": "http://localhost:9000",
+          "SONARQUBE_TOKEN": "",
+          "MCP_PORT": "3001"
+        },
+        "disabled": false
+      }
+    }
+  }
+}

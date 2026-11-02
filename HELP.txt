@@ -1,0 +1,193 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                       🔍 SONARQUBE + MCP - AYUDA RÁPIDA                   ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+ACCIONES PRINCIPALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 UBICACIÓN ACTUAL: ~/Desktop/sonarqube
+
+🚀 INICIAR TODO (RECOMENDADO PRIMERO)
+   $ ./start.sh
+   ↳ Inicia SonarQube (9000) + MCP (3001)
+   ↳ Espera ~40 segundos
+   ↳ Ver logs en la terminal
+
+🛑 DETENER TODO
+   $ ./stop.sh
+   ↳ Apaga SonarQube + MCP
+
+🔍 VER ESTADO
+   $ ./status.sh
+   ↳ Verifica Docker, sonar-scanner, MCP, perfiles
+
+ESCANEAR PROYECTOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 OPCIÓN A: ESCANEAR CON PERFIL PRECONFIGURADO
+
+   Backend (Go):
+   $ cd examples && bash scan-backend.sh
+
+   Frontend (JavaScript):
+   $ cd examples && bash scan-frontend.sh
+
+📊 OPCIÓN B: ESCANEAR CUALQUIER PROYECTO (DINÁMICO)
+
+   $ curl -X POST http://localhost:3001/scan-dynamic \
+     -H "Content-Type: application/json" \
+     -d '{
+       "projectPath": "/ruta/del/proyecto",
+       "projectKey": "mi-proyecto",
+       "projectName": "Mi Proyecto",
+       "sources": ["src"],
+       "language": "go"
+     }'
+
+ACCEDER A INTERFACES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 SonarQube UI
+   URL:      http://localhost:9000
+   Usuario:  admin
+   Password: admin
+   Resultado del escaneo: http://localhost:9000/dashboard?id=PROJECT_KEY
+
+📡 MCP Server (API HTTP)
+   Health:   curl http://localhost:3001/health
+   Perfiles: curl http://localhost:3001/profiles
+   POST:     http://localhost:3001/scan
+   POST:     http://localhost:3001/scan-dynamic
+
+DOCUMENTACIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 Archivos disponibles:
+
+   README.md                 → Guía completa de instalación y uso
+   QUICK-REFERENCE.md        → Tarjeta de referencia rápida
+   ADVANCED.md               → Configuración avanzada, personalización
+   STRUCTURE.txt             → Explicación de la estructura del proyecto
+   SETUP-CHECKLIST.md        → Verificación paso a paso
+   HELP.txt                  → Este archivo
+
+PERFILES DISPONIBLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ver perfiles: curl http://localhost:3001/profiles
+
+backend
+  • Proyecto: imed-portal-reportes-backend
+  • Lenguaje: Go
+  • Carpetas: src, internal, cmd
+  • Uso: bash examples/scan-backend.sh
+
+frontend
+  • Proyecto: imed-portal-reportes-frontend
+  • Lenguaje: JavaScript
+  • Carpetas: src, pages, components
+  • Uso: bash examples/scan-frontend.sh
+
+PERSONALIZAR PERFILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Edita: mcp/src/server.js
+2. Busca: const PROFILES = {
+3. Agrega tu perfil:
+
+   'mi-app': {
+     projectKey: 'mi-app-key',
+     projectName: 'Mi App',
+     sources: ['src', 'app'],
+     exclusions: ['**/*.test.js'],
+     language: 'js',
+   }
+
+4. Guarda y reinicia:
+   - Ctrl+C en la terminal de start.sh
+   - ./start.sh
+
+VARIABLES DE ENTORNO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+En start.sh o .env:
+
+SONARQUBE_HOST        Puerto y host de SonarQube (default: http://localhost:9000)
+SONARQUBE_TOKEN       Token API para autenticación (opcional)
+MCP_PORT              Puerto del servidor MCP (default: 3001)
+
+SOLUCIÓN DE PROBLEMAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ "Connection refused" en localhost:9000
+   → Ejecuta: ./start.sh
+   → Espera 40 segundos
+   → Verifica: docker ps | grep sonarqube
+
+❌ "sonar-scanner: command not found"
+   → Instala: brew install sonar-scanner
+   → Verifica: sonar-scanner --version
+
+❌ "Port 9000 already in use"
+   → Ver proceso: lsof -i :9000
+   → Matar proceso: kill -9 <PID>
+   → O cambiar puerto en docker-compose.yml
+
+❌ MCP no responde (curl: (7) Failed to connect)
+   → Verifica: curl http://localhost:3001/health
+   → Revisa logs: Busca errores en la terminal de start.sh
+   → Reinicia: Ctrl+C en start.sh, ./start.sh nuevamente
+
+❌ Permisos denegados en los scripts
+   → Hazlos ejecutables:
+     chmod +x *.sh examples/*.sh
+
+INTEGRACIÓN CON OPENCODE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Copia el contenido de opencode-config.json
+2. Pégalo en ~/.config/opencode/opencode.json bajo "mcp.servers"
+3. Reinicia OpenCode
+4. Ahora puedes usar: /sonarqube scan-backend, etc.
+
+DATOS Y RESPALDO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Los datos de SonarQube se guardan en volúmenes Docker:
+  - sonarqube_data
+  - sonarqube_extensions
+  - sonarqube_logs
+
+Los datos persisten entre reinicios.
+Los escaneos se guardan en .sonar/ en cada proyecto.
+
+COMANDOS ÚTILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ver logs en vivo:
+$ docker logs -f sonarqube
+
+Verificar que está corriendo:
+$ docker ps | grep sonarqube
+
+Reiniciar SonarQube:
+$ docker-compose restart sonarqube
+
+Ver volúmenes:
+$ docker volume ls | grep sonarqube
+
+Limpiar todo (perder datos):
+$ docker-compose down -v
+
+RECURSOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SonarQube Docs: https://docs.sonarqube.org
+sonar-scanner: https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+¿Necesitas más ayuda? Consulta README.md para una guía completa.
+

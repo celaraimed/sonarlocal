@@ -1,0 +1,129 @@
+🏗️  ESTRUCTURA COMPLETA DEL PROYECTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+~/Desktop/sonarqube/
+│
+├── 🐳 DOCKER
+│   └── docker-compose.yml          Configuración de SonarQube + H2 Database
+│
+├── 🚀 SCRIPTS DE CONTROL
+│   ├── start.sh                    Inicia SonarQube + MCP (ejecuta primero)
+│   ├── stop.sh                     Detiene todo
+│   └── status.sh                   Verifica estado de todos los servicios
+│
+├── 📡 MCP SERVER (Node.js)
+│   ├── mcp/
+│   │   ├── src/
+│   │   │   └── server.js           Servidor HTTP del MCP
+│   │   │       • GET  /health           → Estado del MCP
+│   │   │       • GET  /profiles         → Perfiles disponibles
+│   │   │       • POST /scan            → Escanear con perfil
+│   │   │       • POST /scan-dynamic    → Escanear dinámico
+│   │   │
+│   │   └── package.json            Dependencias (solo Node.js nativo)
+│
+├── 📚 DOCUMENTACIÓN
+│   ├── README.md                   Guía completa (start here!)
+│   ├── QUICK-REFERENCE.md          Tarjeta de referencia rápida
+│   ├── ADVANCED.md                 Configuración avanzada
+│   └── STRUCTURE.txt               Este archivo
+│
+├── 📋 EJEMPLOS DE USO
+│   ├── examples/
+│   │   ├── scan-backend.sh        Escanear proyecto backend (perfil)
+│   │   ├── scan-frontend.sh       Escanear proyecto frontend (perfil)
+│   │   ├── scan-dynamic-template.sh Plantilla para escaneo dinámico
+│   │   ├── list-profiles.sh       Listar perfiles disponibles
+│   │   └── health-check.sh        Verificar salud del MCP
+│
+├── ⚙️  CONFIGURACIÓN
+│   ├── .env.example               Variables de entorno (copiar a .env)
+│   ├── opencode-config.json       Snippet para integrar con OpenCode
+│   └── docker-config/             (para configs futuras de SonarQube)
+│
+└── 📊 DATOS (generados en runtime)
+    ├── .sonar/                    (en proyectos escaneados)
+    └── Docker volumes:
+        ├── sonarqube_data         Base de datos H2
+        ├── sonarqube_extensions   Extensiones de SonarQube
+        └── sonarqube_logs         Logs de SonarQube
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 FLUJO DE INICIALIZACIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ./start.sh
+   ├─ Verifica Docker ✓
+   ├─ Verifica sonar-scanner ✓
+   ├─ docker-compose up -d
+   │  └─ Inicia SonarQube (puerto 9000)
+   ├─ Espera a que esté listo (~40s)
+   └─ node mcp/src/server.js
+      └─ Inicia MCP (puerto 3001)
+
+2. Acceder a:
+   ├─ http://localhost:9000       (SonarQube UI)
+   ├─ http://localhost:3001/health (MCP Health)
+   └─ http://localhost:3001/profiles (Perfiles disponibles)
+
+3. Escanear proyecto:
+   ├─ Opción A: Perfil preconfigurado
+   │  └─ bash examples/scan-backend.sh
+   └─ Opción B: Dinámico (cualquier proyecto)
+      └─ curl POST /scan-dynamic
+
+4. Ver resultados:
+   └─ http://localhost:9000/dashboard?id=PROJECT_KEY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 PERFILES PRECONFIGURADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✦ backend
+  • Proyecto: imed-portal-reportes-backend
+  • Lenguaje: Go
+  • Carpetas: src, internal, cmd
+  • Excluye: **/*_test.go, **/vendor/**
+
+✦ frontend
+  • Proyecto: imed-portal-reportes-frontend
+  • Lenguaje: JavaScript
+  • Carpetas: src, pages, components
+  • Excluye: **/node_modules/**, **/*.test.js
+
+Para agregar más: editar mcp/src/server.js línea ~10
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 ENDPOINTS DEL MCP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GET http://localhost:3001/health
+  → {status, sonarqubeHost, authenticated}
+
+GET http://localhost:3001/profiles
+  → [{name, projectKey, projectName, language, sources}]
+
+POST http://localhost:3001/scan
+  Body: {profile, projectPath}
+  → {success, message, projectKey, sonarqubeUrl}
+
+POST http://localhost:3001/scan-dynamic
+  Body: {projectPath, projectKey, projectName, sources, exclusions, language}
+  → {success, message, projectKey, sonarqubeUrl}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 PRIMEROS PASOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Lee README.md
+2. Ejecuta: ./start.sh
+3. Abre: http://localhost:9000 (admin/admin)
+4. Escanea: bash examples/scan-backend.sh
+5. Ve resultados: http://localhost:9000/dashboard?id=...
+6. Personaliza: edita mcp/src/server.js para agregar perfiles
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

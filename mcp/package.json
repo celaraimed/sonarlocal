@@ -1,0 +1,26 @@
+{
+  "name": "sonarqube-mcp",
+  "version": "1.0.0",
+  "description": "SonarQube MCP Server for OpenCode - dynamic project scanning",
+  "main": "src/server.js",
+  "bin": {
+    "sonarqube-mcp": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "echo 'Testing MCP endpoints' && curl -s http://localhost:3001/health | jq"
+  },
+  "keywords": [
+    "sonarqube",
+    "mcp",
+    "opencode",
+    "code-quality",
+    "static-analysis"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
